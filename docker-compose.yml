@@ -1,0 +1,20 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: financial_postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: financial_ai
+      POSTGRES_USER: financial_user
+      POSTGRES_PASSWORD: Shaheer@123
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
