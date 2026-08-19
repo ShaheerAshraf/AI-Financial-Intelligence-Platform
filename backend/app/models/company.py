@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -23,4 +23,28 @@ class Company(Base):
         DateTime,
         default=datetime.utcnow,
         nullable=False,
+    )
+
+    users = relationship(
+        "User",
+        back_populates="company",
+        cascade="all, delete-orphan",
+    )
+
+    vendors = relationship(
+        "Vendor",
+        back_populates="company",
+        cascade="all, delete-orphan",
+    )
+
+    categories = relationship(
+        "Category",
+        back_populates="company",
+        cascade="all, delete-orphan",
+    )
+
+    transactions = relationship(
+        "Transaction",
+        back_populates="company",
+        cascade="all, delete-orphan",
     )
