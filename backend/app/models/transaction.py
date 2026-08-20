@@ -67,6 +67,13 @@ class Transaction(Base):
         nullable=True,
     )
 
+    analysis_status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="NEW",
+        index=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -86,4 +93,34 @@ class Transaction(Base):
     category = relationship(
         "Category",
         back_populates="transactions",
+    )
+
+    anomaly_results = relationship(
+        "AnomalyResult",
+        back_populates="transaction",
+        cascade="all, delete-orphan",
+    )
+
+    transaction_analyses = relationship(
+        "TransactionAnalysis",
+        back_populates="transaction",
+        cascade="all, delete-orphan",
+    )
+
+    invoice_verifications = relationship(
+        "InvoiceVerification",
+        back_populates="transaction",
+        cascade="all, delete-orphan",
+    )
+
+    financial_reviews = relationship(
+        "FinancialReview",
+        back_populates="transaction",
+        cascade="all, delete-orphan",
+    )
+
+    invoices = relationship(
+        "Invoice",
+        back_populates="transaction",
+        cascade="all, delete-orphan",
     )

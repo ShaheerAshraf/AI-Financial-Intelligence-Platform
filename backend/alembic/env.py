@@ -6,7 +6,18 @@ from alembic import context
 
 from app.core.config import settings
 from app.db.base import Base
-from app.models import Company  # noqa: F401
+from app.models import (  # noqa: F401
+    AnomalyResult,
+    Category,
+    Company,
+    FinancialReview,
+    Invoice,
+    InvoiceVerification,
+    Transaction,
+    TransactionAnalysis,
+    User,
+    Vendor,
+)
 
 config = context.config
 
