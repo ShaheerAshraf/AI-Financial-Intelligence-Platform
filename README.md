@@ -143,10 +143,3 @@ The dashboard investigation page lets finance users **Approve**, **Reject**, or 
 - [x] LangGraph orchestration
 - [ ] MLflow experiment tracking
 
-## Contributing
-
-This repository is intended to be public. Please avoid committing secrets, credentials, or customer data.
-
-## License
-
-MIT (or adjust to your preferred license before publishing).
