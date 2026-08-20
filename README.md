@@ -134,12 +134,4 @@ python -m app.scripts.run_financial_workflow --transaction-id 716
 
 The dashboard investigation page lets finance users **Approve**, **Reject**, or **Escalate** after Agent 3 produces an AI recommendation. Decisions are stored on `financial_reviews` (`review_status`, `reviewed_by`, `reviewed_at`, `review_comment`).
 
-## Roadmap
-
-- [x] ML anomaly detection
-- [x] Agents 1–3 wired to PostgreSQL
-- [x] Financial review API
-- [x] React dashboard
-- [x] LangGraph orchestration
-- [ ] MLflow experiment tracking
 
