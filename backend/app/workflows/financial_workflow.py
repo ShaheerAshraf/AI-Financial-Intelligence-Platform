@@ -27,6 +27,7 @@ from app.models.invoice_verification import InvoiceVerification
 from app.models.transaction import Transaction
 from app.models.transaction_analysis import TransactionAnalysis
 from app.services.invoice_extractor import EXTRACTION_STATUS_EXTRACTED
+from app.services.anomaly_scoring import score_transaction_anomaly
 
 SUSPICIOUS_STATUSES = {"HIGH", "MEDIUM", "LOW"}
 WORKFLOW_VERSION = "financial_workflow_v1"
@@ -151,22 +152,40 @@ def run_anomaly_check(state: FinancialState, config: RunnableConfig) -> dict[str
         return {}
 
     db = _get_db(config)
+    transaction_id = state["transaction_id"]
     anomaly = (
         db.query(AnomalyResult)
-        .filter(AnomalyResult.transaction_id == state["transaction_id"])
+        .filter(AnomalyResult.transaction_id == transaction_id)
         .order_by(AnomalyResult.detected_at.desc())
         .first()
     )
 
+    # New transactions are not in the batch ML table — score them online.
     if anomaly is None:
-        return {
-            "anomaly_result": None,
-            "is_suspicious": False,
-            "workflow_status": "NORMAL",
-            **_step("run_anomaly_check", "Anomaly detection", "NORMAL", "No anomaly record"),
-        }
+        try:
+            anomaly = score_transaction_anomaly(db, transaction_id)
+        except Exception as exc:
+            return {
+                "error": f"Anomaly scoring failed: {exc}",
+                "workflow_status": "FAILED",
+                **_step("run_anomaly_check", "Anomaly detection", "FAILED", str(exc)),
+            }
 
     is_suspicious = anomaly.status in SUSPICIOUS_STATUSES
+    # NORMAL status from online/batch scoring → finish without agents
+    if anomaly.status == "NORMAL":
+        return {
+            "anomaly_result": _anomaly_dict(anomaly),
+            "is_suspicious": False,
+            "workflow_status": "NORMAL",
+            **_step(
+                "run_anomaly_check",
+                "Anomaly detection",
+                "NORMAL",
+                anomaly.reason,
+            ),
+        }
+
     status_label = anomaly.status if is_suspicious else "NORMAL"
     return {
         "anomaly_result": _anomaly_dict(anomaly),
